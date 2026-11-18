@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#03050d">
+<title>NEXUS//OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--acc:#00e5ff;--rgb:0,229,255;--acc2:#b46bff;--bg:#03050d;--txt:#d6f4ff;--dim:#7fa3b5;--glass:rgba(7,13,30,.74);--blur:14px;--ok:#39ff88;--warn:#ffb300;--bad:#ff4d5e;
+--fd:'Orbitron','Segoe UI',system-ui,sans-serif;--fb:'Rajdhani','Segoe UI',system-ui,sans-serif;--fm:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:16px;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+select option{background:#0a1530;color:#d6f4ff}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(var(--rgb),.3);border-radius:8px}::-webkit-scrollbar-track{background:transparent}
+.glow-bg{position:fixed;inset:0;z-index:0;background:radial-gradient(60% 50% at 12% 8%,rgba(var(--rgb),.17),transparent 70%),radial-gradient(50% 45% at 92% 92%,rgba(180,107,255,.17),transparent 70%),linear-gradient(180deg,#02040a,#050a1a)}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+body::after{content:'';position:fixed;inset:0;z-index:50;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+body.noscan::after{display:none}
+#app{position:fixed;inset:0;z-index:1;display:grid;grid-template-columns:76px 1fr;grid-template-rows:46px 1fr;grid-template-areas:"top top" "dock main";padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#top{grid-area:top;display:flex;align-items:center;gap:12px;padding:0 14px;background:linear-gradient(180deg,rgba(4,9,22,.92),rgba(4,9,22,.55));border-bottom:1px solid rgba(var(--rgb),.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);position:relative;z-index:5}
+.logo{font:900 15px var(--fd);letter-spacing:.28em;text-shadow:0 0 14px rgba(var(--rgb),.8)}.logo span{color:var(--acc)}
+.tapp{font:500 12px var(--fd);letter-spacing:.16em;color:var(--dim);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:12px;border-left:1px solid rgba(var(--rgb),.3)}
+.sp{flex:1}
+.chip{font:600 12px var(--fm);color:var(--txt);border:1px solid rgba(var(--rgb),.28);border-radius:20px;padding:4px 10px;background:rgba(var(--rgb),.07);white-space:nowrap}
+.chip i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 8px var(--ok)}
+.chip.off i{background:var(--bad);box-shadow:0 0 8px var(--bad)}
+button.chip{height:28px;padding:0 10px}button.chip:hover{background:rgba(var(--rgb),.25)}
+#dock{grid-area:dock;display:flex;flex-direction:column;gap:6px;padding:10px 0;overflow-y:auto;overflow-x:hidden;align-items:center;background:linear-gradient(90deg,rgba(4,9,22,.8),rgba(4,9,22,.35));border-right:1px solid rgba(var(--rgb),.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);scrollbar-width:none;position:relative;z-index:5}
+#dock::-webkit-scrollbar{display:none}
+#dock button{flex:none;position:relative;width:48px;height:48px;border-radius:13px;border:1px solid transparent;background:transparent;color:var(--dim);display:grid;place-items:center;transition:.18s}
+#dock button:hover{color:var(--acc);background:rgba(var(--rgb),.12);border-color:rgba(var(--rgb),.35);box-shadow:0 0 16px rgba(var(--rgb),.25)}
+#dock button.on{color:var(--txt)}
+#dock button.on::before{content:'';position:absolute;left:-14px;top:14px;width:3px;height:20px;border-radius:3px;background:var(--acc);box-shadow:0 0 10px var(--acc);opacity:.5}
+#dock button.act{color:var(--acc);background:rgba(var(--rgb),.16);border-color:rgba(var(--rgb),.45)}
+#dock button.act::before{opacity:1}
+#dock .dsep{flex:none;width:30px;height:1px;background:rgba(var(--rgb),.25);margin:2px 0}
+#main{grid-area:main;position:relative;overflow:hidden;min-width:0;min-height:0}
+#home{position:absolute;inset:0;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:18px}
+.wg{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.card{background:var(--glass);border:1px solid rgba(var(--rgb),.28);border-radius:12px;padding:14px;backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));position:relative;box-shadow:0 0 24px rgba(var(--rgb),.06)}
+.card::before,.win::before{content:'';position:absolute;left:-1px;top:-1px;width:16px;height:16px;border-left:2px solid var(--acc);border-top:2px solid var(--acc);border-top-left-radius:10px;pointer-events:none;z-index:2}
+.card::after{content:'';position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-right:2px solid var(--acc2);border-bottom:2px solid var(--acc2);border-bottom-right-radius:10px;pointer-events:none}
+.card h4{margin:0 0 10px;font:600 11px var(--fd);letter-spacing:.22em;color:var(--acc);text-transform:uppercase}
+.dim{color:var(--dim)}small{font-size:13px}
+.clk .big{font:900 clamp(34px,5vw,56px) var(--fd);letter-spacing:.05em;text-shadow:0 0 24px rgba(var(--rgb),.65);line-height:1.1}
+.clk .dt{color:var(--dim);text-transform:capitalize;margin-top:4px;font-size:17px}
+.clk .up{font:12px var(--fm);color:var(--acc2);margin-top:10px}
+.wrow{display:flex;align-items:center;gap:12px}.wrow .em{font-size:44px;filter:drop-shadow(0 0 12px rgba(var(--rgb),.5))}.wrow .tt{font:700 30px var(--fd)}
+.row{margin:8px 0}.row .l{display:flex;justify-content:space-between;font:12px var(--fm);margin-bottom:4px}
+.bar{height:6px;border-radius:4px;background:rgba(255,255,255,.09);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .7s;border-radius:4px}
+.rings{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-around}.rings div{text-align:center;font:11px var(--fm);color:var(--dim)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font:13px var(--fm)}.cal b{color:var(--acc);font-size:11px;padding-bottom:3px}.cal span{padding:4px 0;border-radius:6px}.cal span.today{background:var(--acc);color:#001018;font-weight:700;box-shadow:0 0 12px var(--acc)}
+.ch2{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.ch2 b{font:600 12px var(--fd);letter-spacing:.14em;text-transform:capitalize}
+.ch2 button{background:none;border:1px solid rgba(var(--rgb),.3);border-radius:6px;width:26px;height:26px;color:var(--acc)}
+.launch{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px}
+.launch button{background:var(--glass);border:1px solid rgba(var(--rgb),.25);border-radius:14px;padding:14px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--acc);transition:.2s;font:600 11px var(--fd);letter-spacing:.1em;text-transform:uppercase}
+.launch button span{color:var(--txt)}
+.launch button:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 8px 28px rgba(var(--rgb),.25)}
+#wins{position:absolute;inset:0;pointer-events:none;z-index:3}
+.win{position:absolute;pointer-events:auto;display:flex;flex-direction:column;min-width:300px;min-height:220px;background:var(--glass);backdrop-filter:blur(var(--blur)) saturate(140%);-webkit-backdrop-filter:blur(var(--blur)) saturate(140%);border:1px solid rgba(var(--rgb),.4);border-radius:11px;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 24px 60px rgba(0,0,0,.6),0 0 30px rgba(var(--rgb),.14);resize:both;overflow:hidden;animation:pop .22s ease-out}
+.win.min{display:none}
+.win.max{left:0!important;top:0!important;width:100%!important;height:100%!important;border-radius:0;resize:none}
+.wh{display:flex;align-items:center;gap:8px;padding:0 8px 0 12px;height:38px;flex:none;cursor:move;background:linear-gradient(90deg,rgba(var(--rgb),.24),rgba(180,107,255,.1) 60%,transparent);border-bottom:1px solid rgba(var(--rgb),.28);font:600 12px var(--fd);letter-spacing:.14em;text-transform:uppercase;touch-action:none;user-select:none;-webkit-user-select:none}
+.wh .wi{color:var(--acc);display:grid}.wh i{flex:1}
+.wh button{width:28px;height:26px;border-radius:7px;border:1px solid rgba(var(--rgb),.25);background:rgba(var(--rgb),.07);font-size:12px;line-height:1;display:grid;place-items:center}
+.wh button:hover{background:rgba(var(--rgb),.28)}.wh button[data-a=close]:hover{background:var(--bad);border-color:var(--bad)}
+.wb{flex:1;min-height:0;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.tb{display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px;align-items:center;border-bottom:1px solid rgba(var(--rgb),.18);background:rgba(0,0,0,.22);flex:none}
+.tb button,.tb select,.btn{background:rgba(var(--rgb),.09);border:1px solid rgba(var(--rgb),.3);border-radius:7px;padding:3px 10px;min-width:30px;height:30px;font-size:14px}
+.tb button:hover,.btn:hover{background:rgba(var(--rgb),.28)}
+.tb input:not([type=color]):not([type=range]){background:rgba(0,0,0,.35);border:1px solid rgba(var(--rgb),.3);border-radius:7px;padding:3px 9px;height:30px;outline:none;min-width:0}
+.tb input:focus{border-color:var(--acc)}
+.tb input[type=color]{width:34px;height:30px;padding:0;border:1px solid rgba(var(--rgb),.3);border-radius:7px;background:none}
+.tb .sep{width:1px;height:20px;background:rgba(var(--rgb),.28);margin:0 3px}
+.tb .dn{flex:1;min-width:120px}.cname{font:700 13px var(--fm);color:var(--acc);min-width:34px;text-align:center}.fx{flex:1;min-width:140px}
+.sb{display:flex;gap:16px;flex-wrap:wrap;padding:5px 12px;font:12px var(--fm);color:var(--dim);border-top:1px solid rgba(var(--rgb),.18);flex:none;background:rgba(0,0,0,.2)}
+.paper{flex:1;overflow:auto;padding:20px clamp(12px,5vw,64px)}
+.doc{min-height:100%;outline:none;font-size:18px;line-height:1.65;caret-color:var(--acc)}
+.doc h1{font:700 28px var(--fd);color:var(--acc);margin:.3em 0}.doc h2{font:700 21px var(--fd);color:var(--acc2);margin:.4em 0}.doc h3{font:600 17px var(--fd);margin:.4em 0}
+.doc blockquote{border-left:3px solid var(--acc);margin:.6em 0;padding-left:14px;color:var(--dim)}
+.sheet{flex:1;overflow:auto}.sheet table{border-collapse:separate;border-spacing:0;font:13px var(--fm)}
+.sheet th{position:sticky;top:0;background:#0a1530;z-index:2;color:var(--acc);font-weight:600;padding:5px 0;min-width:88px;border-right:1px solid rgba(var(--rgb),.15);border-bottom:1px solid rgba(var(--rgb),.28)}
+.sheet th.c{left:0;z-index:4;min-width:40px}.sheet tbody th{top:auto;left:0;z-index:1;min-width:40px;background:#081028}
+.sheet td{padding:0;border-right:1px solid rgba(var(--rgb),.1);border-bottom:1px solid rgba(var(--rgb),.1)}
+.sheet td input{width:88px;border:0;background:transparent;padding:6px 7px;outline:none;font:inherit;display:block}
+.sheet td input:focus{background:rgba(var(--rgb),.16);box-shadow:inset 0 0 0 2px var(--acc)}
+.sheet td.num input{text-align:right;color:#aef3ff}.sheet td.err input{color:var(--bad)}
+.calc{flex:1;display:flex;flex-direction:column;padding:12px;gap:10px;min-height:0;outline:none;overflow:auto}
+.cd{background:rgba(0,0,0,.4);border:1px solid rgba(var(--rgb),.28);border-radius:10px;padding:8px 14px 10px;text-align:right;font-family:var(--fm);position:relative;flex:none}
+.cd .ch{color:var(--dim);font-size:13px;min-height:18px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cd .cr{font-size:clamp(26px,7vw,38px);overflow-x:auto;white-space:nowrap;text-shadow:0 0 14px rgba(var(--rgb),.5);scrollbar-width:none}
+.cd .cm{position:absolute;left:8px;top:8px;display:flex;gap:5px}
+.cd .cm button{font:600 10px var(--fm);padding:2px 7px;border-radius:5px;background:rgba(var(--rgb),.08);border:1px solid rgba(var(--rgb),.3)}
+.cd .cm button.on{background:var(--acc);color:#001018}
+.cx{display:grid;gap:8px}.cx.sci{grid-template-columns:repeat(6,1fr);display:none;flex:none}.calc.s .cx.sci{display:grid}
+.cx.main{grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(44px,1fr);flex:1;min-height:0}
+.cx button{background:rgba(var(--rgb),.07);border:1px solid rgba(var(--rgb),.22);border-radius:10px;font:500 20px var(--fm);transition:.12s;min-height:38px}
+.cx button:hover{background:rgba(var(--rgb),.22)}.cx button:active{transform:scale(.95)}
+.cx button.f{font-size:14px;color:var(--acc2)}.cx button.op{color:var(--acc);background:rgba(var(--rgb),.14)}
+.cx button.eq{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#001018;font-weight:700;border:0}.cx button.ac{color:var(--bad)}
+.scroll{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:12px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.hero{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.hero .he{font-size:76px;filter:drop-shadow(0 0 18px rgba(var(--rgb),.55))}
+.hero .ht{font:900 clamp(38px,8vw,58px) var(--fd);text-shadow:0 0 20px rgba(var(--rgb),.5);line-height:1}.hero .hd{font-size:20px;margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}.stats div{background:rgba(var(--rgb),.07);border:1px solid rgba(var(--rgb),.2);border-radius:10px;padding:8px 10px}
+.stats small{display:block;color:var(--dim)}.stats b{font:600 17px var(--fm)}
+.fc{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px}
+.fc div{text-align:center;background:rgba(var(--rgb),.07);border:1px solid rgba(var(--rgb),.2);border-radius:10px;padding:8px 4px}.fc .e{font-size:28px}.fc small{display:block;color:var(--dim)}
+.drv{display:flex;gap:14px;align-items:center}.drv svg{flex:none;color:var(--txt)}
+.di{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}.di em{font-style:normal;color:var(--acc)}.di small{color:var(--dim)}.di .btn{align-self:flex-start;height:26px;font-size:12px;margin-top:4px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font:13px var(--fm)}.kv span:nth-child(odd){color:var(--dim)}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.mg canvas{width:100%;height:110px;display:block}
+.mg .big{font:700 26px var(--fd)}
+.pt{width:100%;border-collapse:collapse;font:13px var(--fm)}.pt td,.pt th{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(var(--rgb),.12)}.pt th{color:var(--acc);font-weight:600}
+.term{flex:1;display:flex;flex-direction:column;background:rgba(0,0,0,.42);font:14px/1.5 var(--fm);padding:10px;min-height:0}
+.term .to{flex:1;overflow:auto;white-space:pre-wrap;word-break:break-word}.term .tl{display:flex;gap:8px;padding-top:6px}
+.term .tl input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ok);font:inherit}.tp{color:var(--acc)}.term pre{margin:0;color:var(--acc);font:inherit}
+.pcw{flex:1;min-height:0;position:relative}.pcw canvas{position:absolute;inset:0;touch-action:none;cursor:crosshair}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid transparent;padding:0}.sw.on{border-color:#fff;box-shadow:0 0 14px currentColor}
+.set{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.set label{min-width:120px;color:var(--dim)}
+.set input[type=range]{accent-color:var(--acc)}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);z-index:90;background:var(--glass);border:1px solid var(--acc);border-radius:20px;padding:8px 18px;font:13px var(--fm);opacity:0;transition:.3s;pointer-events:none;backdrop-filter:blur(10px)}
+#toast.on{opacity:1;transform:translateX(-50%)}
+#boot{position:fixed;inset:0;z-index:100;background:#02040a;display:flex;align-items:center;justify-content:center;transition:opacity .7s;padding:20px}
+#boot.off{opacity:0;pointer-events:none}
+.bc{width:min(440px,100%);text-align:center}
+.bc h1{font:900 clamp(26px,8vw,38px) var(--fd);letter-spacing:.3em;margin:6px 0 16px;text-shadow:0 0 24px rgba(var(--rgb),.8)}.bc h1 span{color:var(--acc)}
+#bootlog{text-align:left;font:12px/1.7 var(--fm);color:var(--acc);height:130px;overflow:hidden;margin-bottom:12px}
+.bp{height:4px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden}.bp i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));box-shadow:0 0 14px var(--acc);transition:width .3s}
+.bc small{display:block;margin-top:14px;color:var(--dim);font:11px var(--fm);letter-spacing:.2em}
+.ring1{animation:spin 6s linear infinite;transform-origin:50% 50%}.ring2{animation:spin 3.5s linear infinite reverse;transform-origin:50% 50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+@media (max-width:860px){
+ #app{grid-template-columns:1fr;grid-template-rows:46px 1fr 66px;grid-template-areas:"top" "main" "dock"}
+ #dock{flex-direction:row;padding:0 10px;border-right:0;border-top:1px solid rgba(var(--rgb),.25);overflow-x:auto;overflow-y:hidden;gap:4px;justify-content:flex-start}
+ #dock>:first-child{margin-left:auto}#dock>:last-child{margin-right:auto}
+ #dock .dsep{width:1px;height:30px;margin:0 2px}
+ #dock button.on::before{left:14px;top:auto;bottom:-9px;width:20px;height:3px}
+ input,select{font-size:16px}
+}
+@media (max-width:560px){.tapp{display:none}.logo{letter-spacing:.18em}#home{padding:12px}}
+@media (max-width:860px),(max-height:520px){
+ .win{left:0!important;top:0!important;width:100%!important;height:100%!important;border-radius:0;resize:none;min-width:0;min-height:0;border-width:0}
+ .win::before{display:none}.wh{cursor:default}.wh [data-a=max]{display:none}
+}
+@media (max-height:520px) and (min-width:861px){#app{grid-template-columns:64px 1fr}#dock button{width:42px;height:42px}}
+@media (prefers-reduced-motion:reduce){.ring1,.ring2{animation:none}.win{animation:none}}
+</style>
+</head>
+<body>
+<div class="glow-bg"></div><canvas id="bg"></canvas>
+<div id="app">
+ <header id="top">
+  <div class="logo">NEXUS<span>//</span>OS</div><div class="tapp" id="tapp">Escritorio</div><i class="sp"></i>
+  <span class="chip" id="tnet"><i></i>RED</span><span class="chip" id="tbat">PWR</span><span class="chip" id="tclock">00:00:00</span>
+  <button class="chip" id="tfs" title="Pantalla completa" aria-label="Pantalla completa">⛶</button>
+ </header>
+ <nav id="dock" aria-label="Aplicaciones"></nav>
+ <main id="main"><div id="home"></div><div id="wins"></div></main>
+</div>
+<div id="toast"></div>
+<div id="boot"><div class="bc">
+ <svg viewBox="0 0 120 120" width="120" height="120"><g fill="none" stroke="#00e5ff" stroke-width="2"><circle class="ring1" cx="60" cy="60" r="52" stroke-dasharray="40 20 8 20"/><circle class="ring2" cx="60" cy="60" r="38" stroke="#b46bff" stroke-dasharray="18 12"/><circle cx="60" cy="60" r="22" opacity=".6"/><path d="M60 44v32M44 60h32" opacity=".8"/></g></svg>
+ <h1>NEXUS<span>//</span>OS</h1><div id="bootlog"></div><div class="bp"><i id="bootbar"></i></div><small>TOCA PARA OMITIR</small>
+</div></div>
+
+<script>
+'use strict';
+/* ===================== Utilidades ===================== */
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('nx_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('nx_'+k,JSON.stringify(v))}catch(e){}}};
+const pad=n=>String(n).padStart(2,'0');
+const fmtB=b=>{const u=['B','KB','MB','GB','TB'];let i=0;while(b>=1024&&i<4){b/=1024;i++}return (b>=100||i===0?b.toFixed(0):b.toFixed(1))+' '+u[i]};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'],DIAS3=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const bus=new EventTarget();
+const mq=matchMedia('(max-width:860px),(max-height:520px)');const isMob=()=>mq.matches;
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2400)}
+function dl(name,type,data){const u=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)}
+
+//#PURE-START
+/* ===================== Motores puros (calculadora y hoja) ===================== */
+function fmtN(v){if(Math.abs(v)<1e-12)return '0';return String(Number(v.toPrecision(12)))}
+function safeEval(src,deg=true){
+ let s=src.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/π/g,'PI').replace(/√/g,'sqrt').replace(/\^/g,'**').replace(/\be\b/g,'E_').replace(/(\d+(?:\.\d+)?)%/g,'($1/100)');
+ const o=(s.match(/\(/g)||[]).length,c=(s.match(/\)/g)||[]).length;if(o>c)s+=')'.repeat(o-c);
+ const chk=s.replace(/\b(sin|cos|tan|ln|log|sqrt|PI|E_)\b/g,'0');
+ if(!/^[\d\s+\-*/().]*$/.test(chk))throw new Error('expr');
+ const r=f=>x=>f(deg?x*Math.PI/180:x);
+ const v=new Function('sin','cos','tan','ln','log','sqrt','PI','E_','"use strict";return ('+s+')')(r(Math.sin),r(Math.cos),r(Math.tan),Math.log,Math.log10,Math.sqrt,Math.PI,Math.E);
+ if(typeof v!=='number'||!isFinite(v))throw new Error('num');return v}
+
+function makeEngine(data){
+ let memo={};
+ const isNum=s=>typeof s==='string'&&s.trim()!==''&&!isNaN(Number(s.replace(',','.')));
+ const nums=a=>a.flat(Infinity).filter(x=>typeof x==='number');
+ const F={
+  SUM:(...a)=>nums(a).reduce((s,x)=>s+x,0),
+  AVERAGE:(...a)=>{const n=nums(a);return n.length?n.reduce((s,x)=>s+x,0)/n.length:0},
+  MIN:(...a)=>{const n=nums(a);return n.length?Math.min(...n):0},
+  MAX:(...a)=>{const n=nums(a);return n.length?Math.max(...n):0},
+  COUNT:(...a)=>nums(a).length,
+  ROUND:(x,d=0)=>Math.round(x*10**d)/10**d,ABS:Math.abs,SQRT:Math.sqrt,IF:(c,a,b)=>c?a:b,POW:Math.pow};
+ F.AVG=F.AVERAGE;
+ function cell(ref,stack){
+  if(ref in memo)return memo[ref];
+  const raw=data[ref];let v;
+  if(raw==null||raw==='')v='';
+  else if(raw[0]==='='){
+   if(stack.includes(ref))return '#CIRC';
+   try{v=evalF(raw.slice(1),[...stack,ref])}catch(e){v=typeof e==='string'?e:'#ERR'}
+  }else v=isNum(raw)?Number(raw.replace(',','.')):raw;
+  return memo[ref]=v}
+ function evalF(expr,stack){
+  let e=expr.toUpperCase().replace(/\^/g,'**');
+  e=e.replace(/\b([A-Z]\d{1,3}):([A-Z]\d{1,3})\b|\b([A-Z]\d{1,3})\b/g,(m,a,b,c)=>a?'R("'+a+'","'+b+'")':'V("'+c+'")');
+  const chk=e.replace(/[VR]\("[A-Z]\d{1,3}"(?:,"[A-Z]\d{1,3}")?\)/g,'0').replace(/\b(SUM|AVERAGE|AVG|MIN|MAX|COUNT|ROUND|ABS|SQRT|IF|POW|PI)\b/g,'0');
+  if(!/^[\d\s+\-*/().,<>=!%&|?:]*$/.test(chk))throw '#NOMBRE?';
+  const V=r=>{const x=cell(r,stack);if(typeof x==='string'&&x[0]==='#')throw x;return x===''?0:x};
+  const R=(a,b)=>{const p=a.match(/([A-Z])(\d+)/),q=b.match(/([A-Z])(\d+)/);
+   const c1=Math.min(p[1].charCodeAt(0),q[1].charCodeAt(0)),c2=Math.max(p[1].charCodeAt(0),q[1].charCodeAt(0));
+   const r1=Math.min(+p[2],+q[2]),r2=Math.max(+p[2],+q[2]);const out=[];
+   for(let c=c1;c<=c2;c++)for(let r=r1;r<=r2;r++){const x=cell(String.fromCharCode(c)+r,stack);if(typeof x==='string'&&x[0]==='#')throw x;out.push(x)}
+   return out};
+  let v;
+  try{v=new Function('V','R','SUM','AVERAGE','AVG','MIN','MAX','COUNT','ROUND','ABS','SQRT','IF','POW','PI','"use strict";return ('+e+')')(V,R,F.SUM,F.AVERAGE,F.AVG,F.MIN,F.MAX,F.COUNT,F.ROUND,F.ABS,F.SQRT,F.IF,F.POW,Math.PI)}
+  catch(er){throw typeof er==='string'?er:'#ERR'}
+  if(Array.isArray(v))throw '#ERR';
+  if(typeof v==='number'&&!isFinite(v))throw '#DIV/0!';
+  return v}
+ return{reset(){memo={}},cell:r=>cell(r,[])}}
+//#PURE-END
+
+/* ===================== Iconos ===================== */
+const IC={
+ home:'<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>',
+ writer:'<path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/>',
+ sheets:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16M15 4v16"/>',
+ calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h1M12 12h1M16 12h0M8 16h1M12 16h1M16 16h0"/>',
+ weather:'<circle cx="9" cy="9" r="3.5"/><path d="M9 2v2M2 9h2M4 4l1.5 1.5M14 4l-1.5 1.5"/><path d="M8 20h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.5 1A3 3 0 0 0 8 20z"/>',
+ drives:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="7" cy="12" r="1"/><path d="M11 12h7"/>',
+ monitor:'<path d="M3 12h4l3-7 4 14 3-7h4"/>',
+ terminal:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 16h5"/>',
+ paint:'<path d="M4 20c3 0 5-1 5-3.5S7 14 7 14l9-9a2.1 2.1 0 0 1 3 3l-9 9s-1-2-3.5-2S7 19 4 20z"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'};
+const svg=(k,s=24)=>'<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+IC[k]+'</svg>';
+
+/* ===================== Configuración y fondo ===================== */
+const cfg=Object.assign({acc:'#00e5ff',wall:'net',blur:14,scan:true,anim:!matchMedia('(prefers-reduced-motion: reduce)').matches},store.get('cfg',{}));
+let RGB='0,229,255';
+function applyCfg(){
+ const h=cfg.acc,r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);RGB=r+','+g+','+b;
+ const s=document.documentElement.style;s.setProperty('--acc',h);s.setProperty('--rgb',RGB);s.setProperty('--blur',cfg.blur+'px');
+ document.body.classList.toggle('noscan',!cfg.scan);store.set('cfg',cfg);bgMode()}
+const cv=$('#bg'),cx=cv.getContext('2d');let BW=0,BH=0,parts=[],drops=[],tick0=0;
+function bgResize(){const d=Math.min(devicePixelRatio||1,2);BW=innerWidth;BH=innerHeight;cv.width=BW*d;cv.height=BH*d;cx.setTransform(d,0,0,d,0,0);
+ parts=Array.from({length:Math.min(90,Math.floor(BW*BH/15000))},()=>({x:Math.random()*BW,y:Math.random()*BH,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4}));
+ drops=Array.from({length:Math.ceil(BW/18)},()=>Math.random()*BH/18);bgMode()}
+function bgMode(){cx.clearRect(0,0,BW,BH);draw(0)}
+const GL='ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄ01ABCDEF<>{}=+*';
+function draw(t){
+ if(cfg.wall==='net'){cx.clearRect(0,0,BW,BH);
+  for(const p of parts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>BW)p.vx*=-1;if(p.y<0||p.y>BH)p.vy*=-1}
+  cx.lineWidth=1;
+  for(let i=0;i<parts.length;i++){const a=parts[i];
+   for(let j=i+1;j<parts.length;j++){const b=parts[j],dx=a.x-b.x,dy=a.y-b.y,d=dx*dx+dy*dy;if(d<14400){cx.strokeStyle='rgba('+RGB+','+(.28*(1-d/14400))+')';cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke()}}
+   cx.fillStyle='rgba('+RGB+',.75)';cx.beginPath();cx.arc(a.x,a.y,1.6,0,6.3);cx.fill()}
+ }else if(cfg.wall==='matrix'){
+  cx.fillStyle='rgba(2,4,10,.14)';cx.fillRect(0,0,BW,BH);cx.font='15px JetBrains Mono,monospace';
+  drops.forEach((y,i)=>{const ch=GL[Math.random()*GL.length|0];cx.fillStyle='rgba('+RGB+',.85)';cx.fillText(ch,i*18,y*18);
+   if(y*18>BH&&Math.random()>.975)drops[i]=0;else drops[i]=y+1})
+ }else{
+  cx.clearRect(0,0,BW,BH);const s=t/4000;
+  [[.25,.3,'0,229,255'],[.75,.6,'180,107,255'],[.5,.85,'57,255,136']].forEach((c,i)=>{
+   const x=BW*(c[0]+.12*Math.sin(s+i*2)),y=BH*(c[1]+.12*Math.cos(s*.8+i)),r=Math.max(BW,BH)*.5;
+   const g=cx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba('+c[2]+',.20)');g.addColorStop(1,'rgba('+c[2]+',0)');cx.fillStyle=g;cx.fillRect(0,0,BW,BH)})}}
+let lastF=0;
+function loop(t){requestAnimationFrame(loop);if(!cfg.anim||document.hidden)return;
+ const gap=cfg.wall==='matrix'?60:16;if(t-lastF<gap)return;lastF=t;draw(t)}
+addEventListener('resize',bgResize);
+
+/* ===================== Estado del sistema (simulado) ===================== */
+const sys={cpu:30,ram:48,net:12,cores:Math.min(navigator.hardwareConcurrency||8,16),mem:navigator.deviceMemory||16,t0:Date.now(),temp:48};
+sys.hc=Array.from({length:sys.cores},()=>20+Math.random()*40);
+const HST={cpu:Array(60).fill(30),ram:Array(60).fill(48),net:Array(60).fill(10)};
+function sysTick(){const w=(v,a,b,s)=>Math.max(a,Math.min(b,v+(Math.random()-.5)*s));
+ sys.cpu=w(sys.cpu,6,95,16);sys.ram=w(sys.ram,30,82,3);sys.net=w(sys.net,1,100,24);sys.temp=w(sys.temp,38,78,3);sys.hc=sys.hc.map(v=>w(v,2,100,28));
+ for(const k of['cpu','ram','net']){HST[k].push(sys[k]);HST[k].shift()}bus.dispatchEvent(new Event('sys'))}
+const uptime=()=>{const s=Math.floor((Date.now()-sys.t0)/1000);return pad(Math.floor(s/3600))+':'+pad(Math.floor(s/60)%60)+':'+pad(s%60)};
+
+/* ===================== Clima ===================== */
+let W=null;
+const WX=c=>c===0?['Despejado','☀️']:c<=2?['Parcialmente nublado','⛅']:c===3?['Nublado','☁️']:c<=48?['Niebla','🌫️']:c<=57?['Llovizna','🌦️']:c<=67?['Lluvia','🌧️']:c<=77?['Nieve','🌨️']:c<=82?['Chubascos','🌦️']:c<=86?['Nevada','🌨️']:['Tormenta eléctrica','⛈️'];
+const wxi=(c,day)=>(!day&&(c===0||c===1))?['Despejado','🌙']:WX(c);
+const demoW=()=>{const days=[];for(let i=0;i<6;i++){const d=new Date(Date.now()+i*864e5);days.push({d:d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),max:Math.round(22+Math.random()*7),min:Math.round(13+Math.random()*5),code:[0,1,2,3,61,2][i],pp:[5,10,20,40,70,25][i]})}
+ return{name:'Ciudad Nexus (simulado)',demo:true,t:24,fl:25,h:62,wind:11,p:1012,code:2,day:1,days}};
+async function loadWeather(lat,lon,name){
+ try{const u='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,is_day,surface_pressure&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=6';
+  const r=await fetch(u);if(!r.ok)throw 0;const j=await r.json(),c=j.current;
+  W={name,demo:false,t:c.temperature_2m,fl:c.apparent_temperature,h:c.relative_humidity_2m,wind:c.wind_speed_10m,p:c.surface_pressure,code:c.weather_code,day:c.is_day,
+   days:j.daily.time.map((d,i)=>({d,max:j.daily.temperature_2m_max[i],min:j.daily.temperature_2m_min[i],code:j.daily.weather_code[i],pp:j.daily.precipitation_probability_max[i]}))};
+  store.set('wloc',{lat,lon,name});
+ }catch(e){if(!W||!W.demo)W=W||demoW();if(W.demo)W=demoW()}
+ bus.dispatchEvent(new Event('weather'))}
+async function searchCity(q){q=q.trim();if(!q)return;
+ try{const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=es');const j=await r.json(),p=j.results&&j.results[0];
+  if(!p)return toast('Ciudad no encontrada');await loadWeather(p.latitude,p.longitude,p.name+(p.country?', '+p.country:''))}catch(e){toast('Sin conexión para buscar')}}
+function geolocate(){if(!navigator.geolocation)return toast('Ubicación no disponible');
+ navigator.geolocation.getCurrentPosition(p=>loadWeather(p.coords.latitude,p.coords.longitude,'Mi ubicación'),()=>toast('Ubicación no disponible'),{timeout:8000})}
+
+/* ===================== Unidades simuladas ===================== */
+const DR=[{n:'NEXUS-CORE',l:'C:',t:'NVMe Gen5 · sistema',cap:2e12,used:.58},{n:'DATA-VAULT',l:'D:',t:'SSD SATA · datos',cap:4e12,used:.34},{n:'ARCHIVE-X',l:'E:',t:'HDD 7200 rpm · archivo',cap:8e12,used:.81},{n:'CLOUD-SYNC',l:'Z:',t:'Unidad de red · nube',cap:1e12,used:.22}];
+const colFor=p=>p>.85?'var(--bad)':p>.7?'var(--warn)':'var(--acc)';
+function ring(p,col,s=84){const r=34,c=2*Math.PI*r;return '<svg viewBox="0 0 80 80" width="'+s+'" height="'+s+'"><circle cx="40" cy="40" r="'+r+'" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="7"/><circle cx="40" cy="40" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+(c*p)+' '+c+'" transform="rotate(-90 40 40)" style="filter:drop-shadow(0 0 4px '+col+')"/><text x="40" y="45" text-anchor="middle" fill="currentColor" font-size="15" font-family="Orbitron,sans-serif">'+Math.round(p*100)+'%</text></svg>'}
+
+/* ===================== Gestor de ventanas ===================== */
+const APPS={};let wins={},zc=20,cascade=0,act=null;
+function mkCtx(){const c={offs:[],on(t,f){bus.addEventListener(t,f);c.offs.push(()=>bus.removeEventListener(t,f))}};return c}
+function refreshDock(){$$('#dock button[data-id]').forEach(b=>{const w=wins[b.dataset.id];b.classList.toggle('on',!!w);b.classList.toggle('act',!!w&&!w.el.classList.contains('min')&&act===b.dataset.id)});
+ $('#tapp').textContent=act&&APPS[act]?APPS[act].name:'Escritorio'}
+function focusWin(id){const w=wins[id];if(!w)return;w.el.classList.remove('min');w.el.style.zIndex=++zc;act=id;
+ if(isMob())for(const k in wins)if(k!==id)wins[k].el.classList.add('min');refreshDock()}
+function minWin(id){const w=wins[id];if(!w)return;w.el.classList.add('min');if(act===id){act=null;let best=null,bz=-1;for(const k in wins){const e=wins[k].el;if(!e.classList.contains('min')&&+e.style.zIndex>bz){bz=+e.style.zIndex;best=k}}act=best}refreshDock()}
+function closeWin(id){const w=wins[id];if(!w)return;w.ctx.offs.forEach(f=>f());w.el.remove();delete wins[id];if(act===id){act=null;let best=null,bz=-1;for(const k in wins){const e=wins[k].el;if(!e.classList.contains('min')&&+e.style.zIndex>bz){bz=+e.style.zIndex;best=k}}act=best}refreshDock()}
+function dragStart(e,el){if(isMob()||el.classList.contains('max')||e.target.closest('button'))return;
+ const r=el.getBoundingClientRect(),p=$('#wins').getBoundingClientRect(),dx=e.clientX-r.left,dy=e.clientY-r.top;
+ const mv=ev=>{let x=ev.clientX-dx-p.left,y=ev.clientY-dy-p.top;x=Math.max(-r.width+90,Math.min(p.width-90,x));y=Math.max(0,Math.min(p.height-38,y));el.style.left=x+'px';el.style.top=y+'px'};
+ const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up)};addEventListener('pointermove',mv);addEventListener('pointerup',up);e.preventDefault()}
+function openApp(id){
+ const A=APPS[id];let w=wins[id];if(w){focusWin(id);return}
+ const el=document.createElement('section');el.className='win';
+ el.innerHTML='<header class="wh"><span class="wi">'+svg(id,16)+'</span><b>'+A.name+'</b><i></i><button data-a="min" title="Minimizar" aria-label="Minimizar">▁</button><button data-a="max" title="Maximizar" aria-label="Maximizar">◻</button><button data-a="close" title="Cerrar" aria-label="Cerrar">✕</button></header><div class="wb"></div>';
+ const m=$('#main'),mw=m.clientWidth,mh=m.clientHeight,Wd=Math.min(A.w,mw-24),Ht=Math.min(A.h,mh-24);
+ el.style.width=Wd+'px';el.style.height=Ht+'px';
+ el.style.left=Math.max(8,Math.min(mw-Wd-8,26+(cascade%6)*30))+'px';el.style.top=Math.max(8,Math.min(mh-Ht-8,18+(cascade%6)*26))+'px';cascade++;
+ $('#wins').appendChild(el);const ctx=mkCtx();wins[id]={el,ctx};
+ A.init($('.wb',el),el,ctx);
+ el.addEventListener('pointerdown',()=>{if(act!==id||el.style.zIndex!=zc)focusWin(id)},true);
+ $('.wh',el).addEventListener('pointerdown',e=>dragStart(e,el));
+ $('.wh',el).addEventListener('dblclick',e=>{if(!isMob()&&!e.target.closest('button'))el.classList.toggle('max')});
+ $$('.wh button',el).forEach(b=>b.onclick=e=>{e.stopPropagation();const a=b.dataset.a;if(a==='close')closeWin(id);else if(a==='min')minWin(id);else el.classList.toggle('max')});
+ focusWin(id)}
+
+/* ===================== Aplicación: Escritor ===================== */
+APPS.writer={name:'Escritor',w:760,h:540,init(b,el,ctx){
+ b.innerHTML='<div class="tb"><button data-c="bold" title="Negrita"><b>B</b></button><button data-c="italic" title="Cursiva"><i>I</i></button><button data-c="underline" title="Subrayado"><u>U</u></button><button data-c="strikeThrough" title="Tachado"><s>S</s></button><span class="sep"></span>'+
+ '<select data-f="block" title="Estilo"><option value="p">Párrafo</option><option value="h1">Título 1</option><option value="h2">Título 2</option><option value="h3">Título 3</option><option value="blockquote">Cita</option></select>'+
+ '<button data-c="insertUnorderedList">• Lista</button><button data-c="insertOrderedList">1. Lista</button><span class="sep"></span>'+
+ '<button data-c="justifyLeft" title="Izquierda">⇤</button><button data-c="justifyCenter" title="Centrar">↔</button><button data-c="justifyRight" title="Derecha">⇥</button><input type="color" data-f="color" value="#00e5ff" title="Color de texto"><button data-c="undo" title="Deshacer">↶</button><button data-c="redo" title="Rehacer">↷</button></div>'+
+ '<div class="tb"><input class="dn" placeholder="Título del documento" value="Documento sin título"><button data-x="new">Nuevo</button><button data-x="save">Guardar</button><select data-x="open"><option value="">Abrir…</option></select><button data-x="html">.html</button><button data-x="txt">.txt</button></div>'+
+ '<div class="paper"><div class="doc" contenteditable="true" spellcheck="true"></div></div><div class="sb"><span class="wc"></span><span class="st">Autoguardado activo</span></div>';
+ const doc=$('.doc',b),dn=$('.dn',b),sel=$('select[data-x=open]',b);
+ const welcome='<h1>Bienvenido a NEXUS Writer</h1><p>Procesador de texto del futuro: escribe, da formato y exporta. Tu trabajo se guarda automáticamente en este dispositivo.</p><h2>Atajos útiles</h2><ul><li><b>Ctrl+B</b> negrita, <b>Ctrl+I</b> cursiva, <b>Ctrl+U</b> subrayado</li><li>Usa el selector de estilo para títulos y citas</li></ul><blockquote>El futuro no se predice: se escribe.</blockquote><p><br></p>';
+ const cur=store.get('wcur',null);if(cur){dn.value=cur.name;doc.innerHTML=cur.html}else doc.innerHTML=welcome;
+ const listDocs=()=>{const d=store.get('docs',{});sel.innerHTML='<option value="">Abrir…</option>'+Object.keys(d).map(k=>'<option value="'+esc(k)+'">'+esc(k)+'</option>').join('')};listDocs();
+ const count=()=>{const t=doc.innerText.trim();$('.wc',b).textContent=(t?t.split(/\s+/).length:0)+' palabras · '+t.length+' caracteres'};count();
+ let tm;const auto=()=>{count();clearTimeout(tm);tm=setTimeout(()=>{store.set('wcur',{name:dn.value,html:doc.innerHTML});$('.st',b).textContent='Guardado '+new Date().toLocaleTimeString()},500)};
+ doc.addEventListener('input',auto);dn.addEventListener('input',auto);
+ b.addEventListener('mousedown',e=>{if(e.target.closest('.tb button'))e.preventDefault()});
+ b.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.c){doc.focus();document.execCommand(t.dataset.c);auto();return}
+  const x=t.dataset.x;
+  if(x==='new'){doc.innerHTML='<p><br></p>';dn.value='Documento sin título';auto();doc.focus()}
+  if(x==='save'){const d=store.get('docs',{});d[dn.value||'Sin título']=doc.innerHTML;store.set('docs',d);listDocs();toast('Documento guardado')}
+  if(x==='html')dl((dn.value||'documento')+'.html','text/html','<!DOCTYPE html><html lang="es"><meta charset="utf-8"><title>'+esc(dn.value)+'</title><body style="font-family:Georgia,serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.65">'+doc.innerHTML+'</body></html>');
+  if(x==='txt')dl((dn.value||'documento')+'.txt','text/plain',doc.innerText)});
+ b.addEventListener('change',e=>{const t=e.target;
+  if(t.dataset.f==='block'){doc.focus();document.execCommand('formatBlock',false,'<'+t.value+'>');auto()}
+  if(t.dataset.x==='open'&&t.value){const d=store.get('docs',{});if(d[t.value]!=null){doc.innerHTML=d[t.value];dn.value=t.value;auto()}t.value=''}});
+ b.addEventListener('input',e=>{if(e.target.dataset.f==='color'){doc.focus();document.execCommand('foreColor',false,e.target.value);auto()}});
+ setTimeout(()=>{if(!isMob())doc.focus()},50)}};
+
+/* ===================== Aplicación: Hojas ===================== */
+function sampleSheet(){const d={A1:'Módulo',B1:'Enero',C1:'Febrero',D1:'Marzo',E1:'Total',F1:'Promedio'};
+ [['Energía cuántica',1200,1350,1500],['Red neuronal',860,920,1010],['Holoproyección',430,390,520],['Nanorreparación',670,710,690],['Soporte orbital',310,340,365]].forEach((r,i)=>{const n=i+2;d['A'+n]=r[0];d['B'+n]=String(r[1]);d['C'+n]=String(r[2]);d['D'+n]=String(r[3]);d['E'+n]='=SUM(B'+n+':D'+n+')';d['F'+n]='=ROUND(AVERAGE(B'+n+':D'+n+'),1)'});
+ d.A8='TOTAL';['B','C','D','E'].forEach(c=>d[c+'8']='=SUM('+c+'2:'+c+'6)');d.A10='Crecimiento Ene→Mar (%)';d.B10='=ROUND((D8-B8)/B8*100,1)';return d}
+APPS.sheets={name:'Hojas',w:820,h:520,init(b,el,ctx){
+ const C=26,R=50,cn=i=>String.fromCharCode(65+i);
+ const data=store.get('sheet',null)||sampleSheet();const eng=makeEngine(data);
+ b.innerHTML='<div class="tb"><button data-x="new">Nuevo</button><button data-x="demo">Ejemplo</button><button data-x="csv">Exportar CSV</button><span class="sep"></span><span class="cname">A1</span><input class="fx" placeholder="Valor o fórmula — ej. =SUM(B2:B6)"></div><div class="sheet"><table></table></div><div class="sb"><span class="sv">Listo</span><span>SUM AVERAGE MIN MAX COUNT ROUND ABS SQRT IF POW</span></div>';
+ let h='<thead><tr><th class="c"></th>'+Array.from({length:C},(_,i)=>'<th>'+cn(i)+'</th>').join('')+'</tr></thead><tbody>';
+ for(let r=1;r<=R;r++){h+='<tr><th>'+r+'</th>';for(let c=0;c<C;c++)h+='<td><input data-r="'+cn(c)+r+'" autocomplete="off"></td>';h+='</tr>'}
+ $('table',b).innerHTML=h+'</tbody>';
+ const inputs=$$('input[data-r]',b),fx=$('.fx',b),nm=$('.cname',b),sv=$('.sv',b);let sel=null;
+ const fmt=v=>typeof v==='number'?fmtN(v):v;
+ const save=()=>store.set('sheet',data);
+ function paint(){eng.reset();inputs.forEach(i=>{if(i===document.activeElement)return;const ref=i.dataset.r,raw=data[ref];
+  if(raw==null||raw===''){i.value='';i.parentNode.className='';return}
+  const v=eng.cell(ref);i.value=fmt(v);i.parentNode.className=typeof v==='number'?'num':(String(v)[0]==='#'?'err':'')})}
+ const setRaw=(ref,v)=>{if(v===''||v==null)delete data[ref];else data[ref]=v};
+ b.addEventListener('focusin',e=>{const i=e.target;if(!i.dataset||!i.dataset.r)return;sel=i;const ref=i.dataset.r;i.value=data[ref]||'';nm.textContent=ref;fx.value=data[ref]||'';
+  eng.reset();const v=eng.cell(ref);sv.textContent=ref+' = '+(v===''?'(vacía)':fmt(v))});
+ b.addEventListener('focusout',e=>{const i=e.target;if(!i.dataset||!i.dataset.r)return;setRaw(i.dataset.r,i.value);save();setTimeout(paint,0)});
+ b.addEventListener('input',e=>{const i=e.target;if(i.dataset&&i.dataset.r)fx.value=i.value});
+ fx.addEventListener('input',()=>{if(!sel)return;sel.value=fx.value;setRaw(sel.dataset.r,fx.value);paint()});
+ fx.addEventListener('change',()=>{save();if(sel)sel.focus()});
+ b.addEventListener('keydown',e=>{const i=e.target;if(!i.dataset||!i.dataset.r)return;const m=i.dataset.r.match(/([A-Z])(\d+)/);let r=+m[2];
+  if(e.key==='Enter'||e.key==='ArrowDown'){r=Math.min(R,r+1)}else if(e.key==='ArrowUp'){r=Math.max(1,r-1)}else return;
+  e.preventDefault();const n=$('input[data-r="'+m[1]+r+'"]',b);if(n)n.focus()});
+ b.addEventListener('click',e=>{const t=e.target.closest('button[data-x]');if(!t)return;const x=t.dataset.x;
+  if(x==='new'||x==='demo'){Object.keys(data).forEach(k=>delete data[k]);if(x==='demo')Object.assign(data,sampleSheet());save();paint()}
+  if(x==='csv'){eng.reset();let mr=0,mc=0;Object.keys(data).forEach(k=>{const m=k.match(/([A-Z])(\d+)/);mc=Math.max(mc,m[1].charCodeAt(0)-64);mr=Math.max(mr,+m[2])});
+   const rows=[];for(let r=1;r<=mr;r++){const row=[];for(let c=0;c<mc;c++){const v=fmt(eng.cell(cn(c)+r));row.push('"'+String(v).replace(/"/g,'""')+'"')}rows.push(row.join(','))}
+   dl('hoja.csv','text/csv;charset=utf-8','\ufeff'+rows.join('\n'))}});
+ paint()}};
+
+/* ===================== Aplicación: Calculadora ===================== */
+APPS.calc={name:'Calculadora',w:400,h:640,init(b,el,ctx){
+ const main=['AC','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','±','0','.','='];
+ const sci=['sin(','cos(','tan(','ln(','log(','√(','x²','π','e','(',')','^'];
+ b.innerHTML='<div class="calc" tabindex="0"><div class="cd"><div class="cm"><button data-k="sci">SCI</button><button data-k="deg" class="on">DEG</button></div><div class="ch"></div><div class="cr">0</div></div><div class="cx sci">'+sci.map(k=>'<button class="f" data-k="'+k+'">'+k.replace('(','')+'</button>').join('')+'</div><div class="cx main">'+main.map(k=>'<button data-k="'+k+'" class="'+(k==='='?'eq':k==='AC'?'ac':'÷×−+'.includes(k)?'op':'')+'">'+k+'</button>').join('')+'</div></div>';
+ const box=$('.calc',b),ch=$('.ch',b),cr=$('.cr',b);let ex='',fresh=false,deg=true,last='';
+ const OPS='+−×÷^';
+ const upd=()=>{cr.textContent=ex||'0';cr.scrollLeft=cr.scrollWidth;let p='';if(ex&&!/^−?[\d.]+$/.test(ex)){try{p='= '+fmtN(safeEval(ex,deg))}catch(e){}}ch.textContent=p||last};
+ function press(k){
+  if(k==='sci'){box.classList.toggle('s');$('[data-k=sci]',b).classList.toggle('on',box.classList.contains('s'));return}
+  if(k==='deg'){deg=!deg;const d=$('[data-k=deg]',b);d.textContent=deg?'DEG':'RAD';d.classList.toggle('on',deg);upd();return}
+  if(k==='AC'){ex='';last='';fresh=false;return upd()}
+  if(k==='⌫'){ex=ex.replace(/(sin\(|cos\(|tan\(|ln\(|log\(|√\(|.)$/,'');return upd()}
+  if(k==='='){if(!ex)return;try{const r=fmtN(safeEval(ex,deg));last=ex+' = '+r;ex=r;fresh=true}catch(e){cr.textContent='Error';ch.textContent=ex;ex='';fresh=false;return}return upd()}
+  if(k==='±'){ex=ex.startsWith('−')?ex.slice(1):'−'+ex;return upd()}
+  if(k==='x²')k='^2';
+  const isOp=OPS.includes(k)&&k.length===1;
+  if(fresh){if(!isOp&&k!=='%')ex='';fresh=false}
+  if(isOp){if(ex===''&&k!=='−')return;if(OPS.includes(ex.slice(-1)))ex=ex.slice(0,-1)}
+  ex+=k;upd()}
+ b.addEventListener('click',e=>{const t=e.target.closest('button[data-k]');if(t)press(t.dataset.k)});
+ const KM={'*':'×','/':'÷','-':'−','Enter':'=','Backspace':'⌫','Escape':'AC'};
+ box.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;let k=KM[e.key]||e.key;
+  if(/^[\d.+()^%=]$/.test(k)||['×','÷','−','⌫','AC','='].includes(k)){e.preventDefault();press(k)}});
+ setTimeout(()=>{if(!isMob())box.focus()},50);upd()}};
+
+/* ===================== Aplicación: Clima ===================== */
+APPS.weather={name:'Clima',w:620,h:600,init(b,el,ctx){
+ b.innerHTML='<div class="tb"><input class="ws" placeholder="Buscar ciudad…" style="flex:1;min-width:120px"><button data-x="go">Buscar</button><button data-x="loc" title="Usar mi ubicación">📍</button></div><div class="scroll wx"></div>';
+ const box=$('.wx',b),ws=$('.ws',b);
+ const render=()=>{if(!W)return;const[d,e]=wxi(W.code,W.day);
+  box.innerHTML='<div class="card"><div class="hero"><div class="he">'+e+'</div><div><div class="ht">'+Math.round(W.t)+'°C</div><div class="hd">'+d+'</div><div class="dim">'+esc(W.name)+'</div></div></div></div>'+
+  '<div class="stats"><div><small>Sensación</small><b>'+Math.round(W.fl)+'°C</b></div><div><small>Humedad</small><b>'+Math.round(W.h)+'%</b></div><div><small>Viento</small><b>'+Math.round(W.wind)+' km/h</b></div><div><small>Presión</small><b>'+Math.round(W.p)+' hPa</b></div></div>'+
+  '<div class="card"><h4>Próximos días</h4><div class="fc">'+W.days.map((x,i)=>'<div><small>'+(i===0?'Hoy':DIAS3[new Date(x.d+'T12:00:00').getDay()])+'</small><div class="e">'+WX(x.code)[1]+'</div><b>'+Math.round(x.max)+'°</b> <small style="display:inline">'+Math.round(x.min)+'°</small><small>'+(x.pp!=null?'💧 '+x.pp+'%':'')+'</small></div>').join('')+'</div></div>'+
+  (W.demo?'<p class="dim"><small>Modo demostración: busca una ciudad o pulsa 📍 para datos reales (requiere conexión y permiso de ubicación).</small></p>':'<p class="dim"><small>Datos en vivo de Open-Meteo.</small></p>')};
+ ctx.on('weather',render);render();
+ b.addEventListener('click',e=>{const t=e.target.closest('button[data-x]');if(!t)return;if(t.dataset.x==='go')searchCity(ws.value);else geolocate()});
+ ws.addEventListener('keydown',e=>{if(e.key==='Enter')searchCity(ws.value)})}};
+
+/* ===================== Aplicación: Unidades ===================== */
+APPS.drives={name:'Unidades',w:760,h:580,init(b,el,ctx){
+ b.innerHTML='<div class="scroll"><div class="grid2 dl"></div><div class="card bs"></div><div class="card dv"></div></div>';
+ $('.dl',b).innerHTML=DR.map((d,i)=>'<div class="card drv" data-i="'+i+'">'+ring(d.used,colFor(d.used))+'<div class="di"><b>'+d.n+' <em>'+d.l+'</em></b><small>'+d.t+'</small><small>'+fmtB(d.cap*d.used)+' usados de '+fmtB(d.cap)+'</small><small>'+fmtB(d.cap*(1-d.used))+' libres</small><div class="bar"><i style="width:'+(d.used*100)+'%"></i></div><button class="btn scan">Analizar</button><small class="res"></small></div></div>').join('');
+ const ivs=[];ctx.offs.push(()=>ivs.forEach(clearInterval));
+ b.addEventListener('click',e=>{const t=e.target.closest('.scan');if(!t)return;const card=t.closest('.drv'),res=$('.res',card);let p=0;t.disabled=true;
+  const iv=setInterval(()=>{p+=7;if(p>=100){clearInterval(iv);t.disabled=false;res.textContent='SMART: saludable · '+(30+Math.random()*12|0)+' °C · sin sectores dañados'}else res.textContent='Analizando… '+p+'%'},70);ivs.push(iv)});
+ $('.bs',b).innerHTML='<h4>Almacenamiento real del navegador</h4><div class="dim"><small>Calculando…</small></div>';
+ if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(s=>{const p=s.quota?s.usage/s.quota:0;
+  $('.bs',b).innerHTML='<h4>Almacenamiento real del navegador</h4><div class="drv">'+ring(Math.max(p,.005),'var(--acc2)',72)+'<div class="di"><small>Usado: <b>'+fmtB(s.usage||0)+'</b></small><small>Cuota disponible: <b>'+fmtB(s.quota||0)+'</b></small><div class="bar"><i style="width:'+Math.max(p*100,1)+'%"></i></div><small>Aquí se guardan tus documentos y hojas.</small></div></div>'});
+ else $('.bs',b).innerHTML='<h4>Almacenamiento real del navegador</h4><small class="dim">Tu navegador no expone esta información.</small>';
+ const nc=navigator.connection;
+ $('.dv',b).innerHTML='<h4>Dispositivo</h4><div class="kv"><span>Núcleos lógicos</span><span>'+(navigator.hardwareConcurrency||'—')+'</span><span>Memoria</span><span>'+(navigator.deviceMemory?'≥ '+navigator.deviceMemory+' GB':'—')+'</span><span>Pantalla</span><span>'+screen.width+'×'+screen.height+' @'+(devicePixelRatio||1)+'x</span><span>Idioma</span><span>'+navigator.language+'</span><span>Plataforma</span><span>'+esc((navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||'—')+'</span><span>Conexión</span><span>'+(nc&&nc.effectiveType?nc.effectiveType.toUpperCase():(navigator.onLine?'En línea':'Sin conexión'))+'</span></div><p class="dim"><small>Las unidades C:–Z: son simuladas; un navegador no puede leer los discos reales.</small></p>'}};
+
+/* ===================== Aplicación: Monitor ===================== */
+function chart(c,data,rgb,max=100){const d=devicePixelRatio||1,w=c.clientWidth,h=c.clientHeight;if(!w||!h)return;if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+ const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);g.strokeStyle='rgba(255,255,255,.07)';g.lineWidth=1;
+ for(let i=1;i<4;i++){g.beginPath();g.moveTo(0,h*i/4);g.lineTo(w,h*i/4);g.stroke()}
+ const n=data.length;g.beginPath();data.forEach((v,i)=>{const x=i/(n-1)*w,y=h-v/max*(h-4)-2;i?g.lineTo(x,y):g.moveTo(x,y)});
+ g.strokeStyle='rgb('+rgb+')';g.lineWidth=2;g.shadowColor='rgb('+rgb+')';g.shadowBlur=8;g.stroke();g.shadowBlur=0;g.lineTo(w,h);g.lineTo(0,h);g.closePath();
+ const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'rgba('+rgb+',.35)');gr.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=gr;g.fill()}
+APPS.monitor={name:'Monitor',w:780,h:600,init(b,el,ctx){
+ b.innerHTML='<div class="scroll"><div class="mg"><div class="card"><h4>CPU</h4><div class="big cv">0%</div><canvas data-k="cpu"></canvas></div><div class="card"><h4>Memoria</h4><div class="big mv">0%</div><canvas data-k="ram"></canvas></div><div class="card"><h4>Red</h4><div class="big nv">0 Mb/s</div><canvas data-k="net"></canvas></div></div>'+
+ '<div class="grid2"><div class="card"><h4>Núcleos</h4><div class="cores"></div></div><div class="card"><h4>Estado</h4><div class="kv"><span>Temperatura</span><span class="tmp"></span><span>Tiempo activo</span><span class="upt"></span><span>RAM total</span><span>'+sys.mem+' GB</span><span>Núcleos</span><span>'+sys.cores+'</span></div></div></div>'+
+ '<div class="card"><h4>Procesos</h4><table class="pt"><thead><tr><th>PID</th><th>Proceso</th><th>CPU</th><th>MEM</th></tr></thead><tbody></tbody></table></div></div>';
+ const PR=[['nexus-core',.5],['holo-render',.9],['neural-ui',.7],['quantum-sync',.4],['net-daemon',.3],['writer.svc',.15]],pids=PR.map(()=>1000+Math.random()*8000|0);
+ const cores=$('.cores',b);cores.innerHTML=sys.hc.map((_,i)=>'<div class="row"><div class="l"><span>C'+i+'</span><span></span></div><div class="bar"><i></i></div></div>').join('');cores.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:2px 14px';
+ const rows=$$('.row',cores);
+ const upd=()=>{$('.cv',b).textContent=sys.cpu.toFixed(0)+'%';$('.mv',b).textContent=sys.ram.toFixed(0)+'%';$('.nv',b).textContent=sys.net.toFixed(1)+' Mb/s';
+  chart($('[data-k=cpu]',b),HST.cpu,RGB);chart($('[data-k=ram]',b),HST.ram,'180,107,255');chart($('[data-k=net]',b),HST.net,'57,255,136');
+  sys.hc.forEach((v,i)=>{$('i',rows[i]).style.width=v+'%';$('span:last-child',rows[i]).textContent=v.toFixed(0)+'%'});
+  $('.tmp',b).textContent=sys.temp.toFixed(0)+' °C';$('.upt',b).textContent=uptime();
+  $('tbody',b).innerHTML=PR.map((p,i)=>'<tr><td>'+pids[i]+'</td><td>'+p[0]+'</td><td>'+(sys.cpu*p[1]*(.6+Math.random()*.8)/2).toFixed(1)+'%</td><td>'+(sys.ram*p[1]*(.5+Math.random()*.5)*sys.mem/60).toFixed(0)+' MB</td></tr>').join('')};
+ ctx.on('sys',upd);upd();const ro=new ResizeObserver(upd);ro.observe(b);ctx.offs.push(()=>ro.disconnect())}};
+
+/* ===================== Aplicación: Terminal ===================== */
+const COLORS={cian:'#00e5ff',magenta:'#ff3df0',verde:'#39ff88',ambar:'#ffb300',violeta:'#9b6bff',rojo:'#ff4d5e'};
+APPS.terminal={name:'Terminal',w:640,h:440,init(b,el,ctx){
+ b.innerHTML='<div class="term"><div class="to"></div><div class="tl"><span class="tp">nexus@os:~$</span><input autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Comando"></div></div>';
+ const out=$('.to',b),inp=$('input',b);let hist=[],hi=0;
+ const print=(t,c)=>{const d=document.createElement('div');if(c)d.className=c;d.innerHTML=t;out.appendChild(d);out.scrollTop=out.scrollHeight};
+ print('NEXUS//OS Terminal v7.2 — escribe <b>help</b> para ver los comandos.','dim');
+ const C={
+  help(){print('Comandos: <b>help clear date whoami uname neofetch apps open &lt;app&gt; ls echo calc &lt;expr&gt; weather sysinfo theme &lt;color&gt; matrix reboot</b>')},
+  clear(){out.innerHTML=''},date(){print(new Date().toLocaleString('es'))},whoami(){print('operador')},
+  uname(){print('NEXUS Kernel 7.2.1-quantum x86_64 / '+(navigator.platform||'web'))},
+  echo(a){print(esc(a.join(' ')))},ls(){print('<span class="tp">documentos/</span>  <span class="tp">hojas/</span>  <span class="tp">imagenes/</span>  readme.txt')},
+  apps(){print(Object.keys(APPS).join('  '))},
+  open(a){const id=a[0];if(APPS[id]){openApp(id);print('abriendo '+id+'…')}else print('Aplicación desconocida. Usa: <b>apps</b>','dim')},
+  calc(a){try{print(fmtN(safeEval(a.join(' '))))}catch(e){print('Expresión inválida','dim')}},
+  weather(){if(!W)return print('Sin datos');const[d]=wxi(W.code,W.day);print(esc(W.name)+': '+Math.round(W.t)+'°C, '+d)},
+  sysinfo(){print('CPU '+sys.cpu.toFixed(0)+'% · RAM '+sys.ram.toFixed(0)+'% · RED '+sys.net.toFixed(1)+' Mb/s · '+sys.temp.toFixed(0)+' °C · activo '+uptime())},
+  theme(a){const c=COLORS[(a[0]||'').toLowerCase()];if(!c)return print('Colores: '+Object.keys(COLORS).join(', '));cfg.acc=c;applyCfg();print('tema aplicado')},
+  matrix(){cfg.wall='matrix';applyCfg();print('Despierta, operador…')},reboot(){boot(true)},
+  neofetch(){print('<pre>  ▄████▄    nexus@os\n ███▀▀███   ─────────\n ██▀  ▀██   SO:      NEXUS//OS 7.2\n ███▄▄███   Núcleos: '+sys.cores+'\n  ▀████▀    Pantalla: '+screen.width+'×'+screen.height+'\n            Uptime:  '+uptime()+'</pre>')}};
+ const run=v=>{const[c,...a]=v.split(/\s+/);if(C[c])C[c](a);else print('comando no encontrado: '+esc(c)+' (prueba <b>help</b>)','dim')};
+ inp.addEventListener('keydown',e=>{if(e.key==='Enter'){const v=inp.value.trim();print('<span class="tp">nexus@os:~$</span> '+esc(v));if(v){hist.push(v);hi=hist.length;run(v)}inp.value=''}
+  else if(e.key==='ArrowUp'){if(hi>0)inp.value=hist[--hi]||'';e.preventDefault()}else if(e.key==='ArrowDown'){hi=Math.min(hist.length,hi+1);inp.value=hist[hi]||''}});
+ b.addEventListener('click',()=>{if(!getSelection().toString())inp.focus()});setTimeout(()=>{if(!isMob())inp.focus()},50)}};
+
+/* ===================== Aplicación: Lienzo ===================== */
+APPS.paint={name:'Lienzo',w:680,h:520,init(b,el,ctx){
+ b.innerHTML='<div class="tb"><input type="color" class="pc" value="#00e5ff" title="Color"><input type="range" class="ps" min="1" max="40" value="6" title="Grosor"><button data-x="pen">Pincel</button><button data-x="er">Borrador</button><button data-x="clr">Limpiar</button><button data-x="png">Guardar PNG</button></div><div class="pcw"><canvas></canvas></div>';
+ const w=$('.pcw',b),c=$('canvas',b),g=c.getContext('2d'),BG='#050a18';let erase=false,down=false,lx=0,ly=0;
+ const fit=()=>{const W2=w.clientWidth,H2=w.clientHeight;if(!W2||!H2||(W2===c.width&&H2===c.height))return;const t=document.createElement('canvas');t.width=c.width;t.height=c.height;t.getContext('2d').drawImage(c,0,0);c.width=W2;c.height=H2;g.fillStyle=BG;g.fillRect(0,0,W2,H2);g.drawImage(t,0,0)};
+ const ro=new ResizeObserver(fit);ro.observe(w);ctx.offs.push(()=>ro.disconnect());fit();
+ const pos=e=>{const r=c.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+ c.addEventListener('pointerdown',e=>{down=true;[lx,ly]=pos(e);c.setPointerCapture(e.pointerId);stroke(lx,ly)});
+ const stroke=(x,y)=>{g.lineCap='round';g.lineJoin='round';g.strokeStyle=erase?BG:$('.pc',b).value;g.lineWidth=+$('.ps',b).value;g.beginPath();g.moveTo(lx,ly);g.lineTo(x+.01,y);g.stroke();lx=x;ly=y};
+ c.addEventListener('pointermove',e=>{if(down){const[x,y]=pos(e);stroke(x,y)}});
+ c.addEventListener('pointerup',()=>down=false);c.addEventListener('pointercancel',()=>down=false);
+ b.addEventListener('click',e=>{const t=e.target.closest('button[data-x]');if(!t)return;const x=t.dataset.x;
+  if(x==='pen')erase=false;if(x==='er')erase=true;if(x==='clr'){g.fillStyle=BG;g.fillRect(0,0,c.width,c.height)}
+  if(x==='png')c.toBlob(bl=>{const u=URL.createObjectURL(bl),a=document.createElement('a');a.href=u;a.download='lienzo.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)})})}};
+
+/* ===================== Aplicación: Ajustes ===================== */
+APPS.settings={name:'Ajustes',w:520,h:560,init(b,el,ctx){
+ const draw=()=>{b.innerHTML='<div class="scroll"><div class="card"><h4>Color de acento</h4><div class="set">'+Object.entries(COLORS).map(([n,c])=>'<button class="sw'+(cfg.acc===c?' on':'')+'" style="background:'+c+';color:'+c+'" data-c="'+c+'" title="'+n+'" aria-label="'+n+'"></button>').join('')+'</div></div>'+
+ '<div class="card"><h4>Fondo animado</h4><div class="set"><button class="btn" data-w="net">Red neuronal</button><button class="btn" data-w="matrix">Matrix</button><button class="btn" data-w="aurora">Aurora</button></div></div>'+
+ '<div class="card"><h4>Efectos</h4><div class="set"><label>Desenfoque cristal</label><input type="range" min="0" max="30" value="'+cfg.blur+'" data-r="blur"></div><div class="set" style="margin-top:10px"><label>Animaciones</label><button class="btn" data-t="anim">'+(cfg.anim?'Activadas':'Desactivadas')+'</button></div><div class="set" style="margin-top:10px"><label>Líneas de escaneo</label><button class="btn" data-t="scan">'+(cfg.scan?'Activadas':'Desactivadas')+'</button></div></div>'+
+ '<div class="card"><h4>Sistema</h4><div class="set"><button class="btn" data-s="fs">Pantalla completa</button><button class="btn" data-s="boot">Reiniciar</button><button class="btn" data-s="wipe" style="color:var(--bad)">Borrar datos</button></div><p class="dim"><small>NEXUS//OS 7.2 · tus documentos y ajustes se guardan solo en este navegador.</small></p></div></div>'};
+ draw();
+ b.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.c){cfg.acc=t.dataset.c;applyCfg();draw()}
+  if(t.dataset.w){cfg.wall=t.dataset.w;applyCfg()}
+  if(t.dataset.t){cfg[t.dataset.t]=!cfg[t.dataset.t];applyCfg();draw()}
+  if(t.dataset.s==='fs')toggleFS();if(t.dataset.s==='boot')boot(false);
+  if(t.dataset.s==='wipe'&&confirm('¿Borrar documentos, hojas y ajustes guardados?')){Object.keys(localStorage).filter(k=>k.startsWith('nx_')).forEach(k=>localStorage.removeItem(k));location.reload()}});
+ b.addEventListener('input',e=>{if(e.target.dataset.r==='blur'){cfg.blur=+e.target.value;applyCfg()}})}};
+
+/* ===================== Escritorio (widgets) ===================== */
+function calHTML(y,m){const f=new Date(y,m,1),start=(f.getDay()+6)%7,dim=new Date(y,m+1,0).getDate(),t=new Date();
+ let h='<div class="cal">'+['L','M','X','J','V','S','D'].map(d=>'<b>'+d+'</b>').join('');for(let i=0;i<start;i++)h+='<i></i>';
+ for(let d=1;d<=dim;d++)h+='<span'+(t.getFullYear()===y&&t.getMonth()===m&&t.getDate()===d?' class="today"':'')+'>'+d+'</span>';return h+'</div>'}
+const ORDER=['writer','sheets','calc','weather','drives','monitor','terminal','paint','settings'];
+function buildHome(){
+ $('#home').innerHTML='<div class="wg">'+
+ '<div class="card clk"><h4>Tiempo</h4><div class="big" id="wc">00:00</div><div class="dt" id="wd"></div><div class="up" id="wu"></div></div>'+
+ '<div class="card" id="wW" style="cursor:pointer"><h4>Clima</h4><div class="wrow"><span class="em">⛅</span><div><div class="tt">--°</div><small class="dim">Cargando…</small></div></div><small class="dim"></small></div>'+
+ '<div class="card" id="wS"><h4>Sistema</h4>'+['CPU','RAM','RED'].map(k=>'<div class="row"><div class="l"><span>'+k+'</span><span></span></div><div class="bar"><i></i></div></div>').join('')+'</div>'+
+ '<div class="card" id="wD" style="cursor:pointer"><h4>Almacenamiento</h4><div class="rings">'+DR.slice(0,3).map(d=>'<div>'+ring(d.used,colFor(d.used),64)+'<br>'+d.l+'</div>').join('')+'</div></div>'+
+ '<div class="card" id="wK"><div class="ch2"><button data-d="-1">‹</button><b></b><button data-d="1">›</button></div><div class="cb"></div></div></div>'+
+ '<div class="launch">'+ORDER.map(id=>'<button data-id="'+id+'">'+svg(id,34)+'<span>'+APPS[id].name+'</span></button>').join('')+'</div>';
+ let cm=new Date().getMonth(),cy=new Date().getFullYear();
+ const kal=()=>{$('#wK b').textContent=MESES[cm]+' '+cy;$('#wK .cb').innerHTML=calHTML(cy,cm)};kal();
+ $('#wK').addEventListener('click',e=>{const t=e.target.closest('button[data-d]');if(!t)return;cm+=+t.dataset.d;if(cm<0){cm=11;cy--}if(cm>11){cm=0;cy++}kal()});
+ $('#wW').onclick=()=>openApp('weather');$('#wD').onclick=()=>openApp('drives');
+ $('.launch').onclick=e=>{const t=e.target.closest('button[data-id]');if(t)openApp(t.dataset.id)};
+ const wRender=()=>{if(!W)return;const[d,e]=wxi(W.code,W.day);const c=$('#wW');$('.em',c).textContent=e;$('.tt',c).textContent=Math.round(W.t)+'°C';$('.wrow small',c).textContent=d;c.lastElementChild.textContent=W.name+' · sens. '+Math.round(W.fl)+'° · hum. '+Math.round(W.h)+'%'};
+ bus.addEventListener('weather',wRender);wRender();
+ bus.addEventListener('sys',()=>{const v=[sys.cpu,sys.ram,sys.net],u=['%','%',' Mb/s'];$$('#wS .row').forEach((r,i)=>{$('span:last-child',r).textContent=v[i].toFixed(0)+u[i];$('i',r).style.width=v[i]+'%'})})}
+
+/* ===================== Dock, barra superior, arranque ===================== */
+function buildDock(){
+ $('#dock').innerHTML='<button class="home" title="Escritorio" aria-label="Escritorio">'+svg('home')+'</button><span class="dsep"></span>'+ORDER.map(id=>'<button data-id="'+id+'" title="'+APPS[id].name+'" aria-label="'+APPS[id].name+'">'+svg(id)+'</button>').join('');
+ $('#dock').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.classList.contains('home')){for(const k in wins)wins[k].el.classList.add('min');act=null;refreshDock();return}
+  const id=b.dataset.id,w=wins[id];if(w&&!w.el.classList.contains('min')&&act===id)minWin(id);else openApp(id)}}
+function clock(){const d=new Date(),t=pad(d.getHours())+':'+pad(d.getMinutes());$('#tclock').textContent=t+':'+pad(d.getSeconds());
+ const wc=$('#wc');if(wc){wc.textContent=t;$('#wd').textContent=DIAS[d.getDay()]+', '+d.getDate()+' de '+MESES[d.getMonth()]+' de '+d.getFullYear();$('#wu').textContent='UPTIME '+uptime()}}
+function netStat(){const t=$('#tnet');t.classList.toggle('off',!navigator.onLine);t.innerHTML='<i></i>'+(navigator.onLine?'EN LÍNEA':'OFFLINE')}
+addEventListener('online',netStat);addEventListener('offline',netStat);
+if(navigator.getBattery)navigator.getBattery().then(b=>{const f=()=>{$('#tbat').textContent=(b.charging?'⚡ ':'🔋 ')+Math.round(b.level*100)+'%'};f();b.addEventListener('levelchange',f);b.addEventListener('chargingchange',f)}).catch(()=>{$('#tbat').textContent='PWR AC'});
+else $('#tbat').textContent='PWR AC';
+function toggleFS(){const d=document;if(d.fullscreenElement)d.exitFullscreen();else if(d.documentElement.requestFullscreen)d.documentElement.requestFullscreen().catch(()=>toast('Pantalla completa no disponible'));else toast('Pantalla completa no disponible')}
+$('#tfs').onclick=toggleFS;
+
+const BL=['NEXUS KERNEL 7.2.1 — inicializando núcleo cuántico','Montando unidades de almacenamiento… OK','Cargando red neuronal de interfaz… OK','Calibrando pantalla holográfica… OK','Sincronizando módulos de energía… OK','Iniciando servicios del sistema… OK','Bienvenido, operador.'];
+let bootT=null;
+function bootDone(){clearTimeout(bootT);const b=$('#boot');b.classList.add('off');setTimeout(()=>{b.style.display='none'},750)}
+function boot(fast){const b=$('#boot'),log=$('#bootlog'),bar=$('#bootbar');clearTimeout(bootT);b.style.display='flex';requestAnimationFrame(()=>b.classList.remove('off'));log.innerHTML='';bar.style.width='0';let i=0;
+ const step=()=>{if(i<BL.length){log.insertAdjacentHTML('beforeend','<div>› '+BL[i]+'</div>');bar.style.width=((i+1)/BL.length*100)+'%';i++;bootT=setTimeout(step,fast?110:330)}else bootT=setTimeout(bootDone,fast?200:600)};step()}
+$('#boot').addEventListener('pointerdown',bootDone);addEventListener('keydown',e=>{if(!$('#boot').classList.contains('off'))bootDone()});
+
+/* ===================== Inicio ===================== */
+applyCfg();bgResize();requestAnimationFrame(loop);
+buildDock();buildHome();clock();netStat();setInterval(clock,1000);setInterval(sysTick,1000);sysTick();
+W=demoW();bus.dispatchEvent(new Event('weather'));
+const loc=store.get('wloc',null);
+if(loc)loadWeather(loc.lat,loc.lon,loc.name);else if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>loadWeather(p.coords.latitude,p.coords.longitude,'Mi ubicación'),()=>{},{timeout:8000});
+boot(false);
+</script>
+</body>
+</html>
